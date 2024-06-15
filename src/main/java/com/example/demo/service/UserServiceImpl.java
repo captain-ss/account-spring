@@ -1,21 +1,24 @@
 package com.example.demo.service;
 
+import com.example.demo.exceptions.user.UserException;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class UserServiceImpl implements UserService {
-
+public class UserServiceImpl implements UserService{
     @Autowired
     private UserRepository userRepository;
 
     @Override
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        List<User> result = new ArrayList<User>();
+        userRepository.findAll().forEach(result::add);
+        return result;
     }
 
     @Override
@@ -24,8 +27,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User createUser(User user) {
-        return userRepository.save(user);
+    public User createUser(User user) throws UserException {
+        try {
+            return userRepository.save(user);
+        } catch (Exception e){
+            throw new UserException("User already exist");
+        }
     }
 
     @Override
