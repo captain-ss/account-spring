@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.exceptions.user.UserException;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +27,12 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User createUser(User user) {
-        return userRepository.save(user);
+    public User createUser(User user) throws UserException {
+        try {
+            return userRepository.save(user);
+        } catch (Exception e){
+            throw new UserException("User already exist");
+        }
     }
 
     @Override
