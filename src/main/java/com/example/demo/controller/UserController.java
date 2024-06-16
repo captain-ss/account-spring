@@ -1,16 +1,15 @@
 package com.example.demo.controller;
 
-import com.example.demo.exceptions.user.UserException;
+import com.example.demo.exceptions.user.UserEmailAlreadyTakenException;
 import com.example.demo.model.User;
 import com.example.demo.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -27,13 +26,15 @@ public class UserController {
     }
     @ResponseBody
     @GetMapping(path = "create", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ExceptionHandler(UserException.class)
-    public ResponseEntity<User> createUser() throws UserException {
+    public ResponseEntity<User> createUser() throws UserEmailAlreadyTakenException {
         try{
-            User createdUser = new User("name", "name.name");
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(2000, Calendar.NOVEMBER, 10);
+            final Date date = calendar.getTime();
+            User createdUser = new User("name","name.name", "username", "image_id", "phone", 20000, date, 200000L, "password");;
             userService.createUser(createdUser);
             return ResponseEntity.ok(createdUser);
-        } catch (UserException e){
+        } catch (UserEmailAlreadyTakenException e){
             System.out.println(e.toString());
             throw e;
         } catch (Exception e){
@@ -44,7 +45,12 @@ public class UserController {
 
     @GetMapping(path = "hi")
     public String hello(){
-        return "Hello world";
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2000, Calendar.NOVEMBER, 10);
+        final Date date = calendar.getTime();
+        User user = new User("name","name.name", "username", "image_id", "phone", 20000, date, 200000L, "password");;
+        User createdUser = this.userService.createUser(user);
+        return createdUser.toString();
     }
 
 }
