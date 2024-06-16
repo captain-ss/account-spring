@@ -2,7 +2,9 @@ package com.example.demo.controller;
 
 import com.example.demo.exceptions.user.UserEmailAlreadyTakenException;
 import com.example.demo.model.User;
+import com.example.demo.payload.CreateUserPayload;
 import com.example.demo.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,12 +28,16 @@ public class UserController {
     }
     @ResponseBody
     @GetMapping(path = "create", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<User> createUser() throws UserEmailAlreadyTakenException {
+    public ResponseEntity<User> createUser(@RequestBody CreateUserPayload userPayload) throws UserEmailAlreadyTakenException {
         try{
             Calendar calendar = Calendar.getInstance();
             calendar.set(2000, Calendar.NOVEMBER, 10);
             final Date date = calendar.getTime();
-            User createdUser = new User("name","name.name", "username", "image_id", "phone", 20000, date, 200000L, "password");;
+            User createdUser = new User(
+                userPayload.name(),
+                userPayload.email(), userPayload.username(),
+                "image_id", userPayload.phone(),
+                userPayload.monthly_salary(), date, userPayload.account_balance() != null ? userPayload.account_balance() : Long.valueOf(0L), userPayload.password());;
             userService.createUser(createdUser);
             return ResponseEntity.ok(createdUser);
         } catch (UserEmailAlreadyTakenException e){
@@ -43,14 +49,10 @@ public class UserController {
         }
     }
 
-    @GetMapping(path = "hi")
-    public String hello(){
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(2000, Calendar.NOVEMBER, 10);
-        final Date date = calendar.getTime();
-        User user = new User("name","name.name", "username", "image_id", "phone", 20000, date, 200000L, "password");;
-        User createdUser = this.userService.createUser(user);
-        return createdUser.toString();
+    @GetMapping(path = "hi", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public String hello(@Valid @RequestBody CreateUserPayload user){
+        System.out.println(user.toString());
+        return "Hello";
     }
 
 }

@@ -75,6 +75,24 @@ public class User {
         this.hashed_password=hashed_password;
     }
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", username='" + username + '\'' +
+                ", guid='" + guid + '\'' +
+                ", image_id='" + image_id + '\'' +
+                ", phone='" + phone + '\'' +
+                ", created_at=" + created_at +
+                ", monthly_salary=" + monthly_salary +
+                ", salary_credit_date=" + salary_credit_date +
+                ", account_balance=" + account_balance +
+                ", hashed_password='" + hashed_password + '\'' +
+                '}';
+    }
+
     // Getters and Setters
     public Long getId() {
         return id;
