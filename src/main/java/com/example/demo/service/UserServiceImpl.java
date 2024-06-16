@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.exceptions.user.UserEmailAlreadyTakenException;
+import com.example.demo.exceptions.user.UsernameAlreadyTakenException;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
 import org.hibernate.exception.ConstraintViolationException;
@@ -38,9 +39,12 @@ public class UserServiceImpl implements UserService{
             if(e.getCause() instanceof ConstraintViolationException constraintViolationException){
                 final String constraintName = constraintViolationException.getConstraintName();
                 System.out.println(constraintViolationException.getSQLException().toString()+"get sql exception");
-                System.out.println("Constaint name" + constraintName);
-                if(constraintName == null || constraintName.contains("EMAIL NULLS FIRST")){
+                System.out.println("Constraint name" + constraintName);
+                if(constraintName != null && constraintName.contains("EMAIL NULLS FIRST")){
                     throw new UserEmailAlreadyTakenException("User email already taken");
+                }
+                if(constraintName != null && constraintName.contains("USERNAME NULLS FIRST")){
+                    throw new UsernameAlreadyTakenException("Username already taken");
                 }
             }
             System.out.println(((ConstraintViolationException)e.getCause()).getConstraintName()+"Exception cause");
