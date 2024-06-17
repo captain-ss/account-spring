@@ -1,16 +1,17 @@
 package com.example.demo.controller;
 
-import com.example.demo.exceptions.user.UserException;
+import com.example.demo.exceptions.user.UserEmailAlreadyTakenException;
 import com.example.demo.model.User;
+import com.example.demo.payload.CreateUserPayload;
 import com.example.demo.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -27,13 +28,19 @@ public class UserController {
     }
     @ResponseBody
     @GetMapping(path = "create", produces = MediaType.APPLICATION_JSON_VALUE)
-    @ExceptionHandler(UserException.class)
-    public ResponseEntity<User> createUser() throws UserException {
+    public ResponseEntity<User> createUser(@RequestBody CreateUserPayload userPayload) throws UserEmailAlreadyTakenException {
         try{
-            User createdUser = new User("name", "name.name");
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(2000, Calendar.NOVEMBER, 10);
+            final Date date = calendar.getTime();
+            User createdUser = new User(
+                userPayload.name(),
+                userPayload.email(), userPayload.username(),
+                "image_id", userPayload.phone(),
+                userPayload.monthly_salary(), date, userPayload.account_balance() != null ? userPayload.account_balance() : Long.valueOf(0L), userPayload.password());;
             userService.createUser(createdUser);
             return ResponseEntity.ok(createdUser);
-        } catch (UserException e){
+        } catch (UserEmailAlreadyTakenException e){
             System.out.println(e.toString());
             throw e;
         } catch (Exception e){
@@ -42,9 +49,10 @@ public class UserController {
         }
     }
 
-    @GetMapping(path = "hi")
-    public String hello(){
-        return "Hello world";
+    @GetMapping(path = "hi", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public String hello(@Valid @RequestBody CreateUserPayload user){
+        System.out.println(user.toString());
+        return "Hello";
     }
 
 }

@@ -1,9 +1,12 @@
 package com.example.demo.service;
 
-import com.example.demo.exceptions.user.UserException;
+import com.example.demo.exceptions.user.UserEmailAlreadyTakenException;
+import com.example.demo.exceptions.user.UsernameAlreadyTakenException;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -27,11 +30,29 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User createUser(User user) throws UserException {
+    public User createUser(User user) throws UserEmailAlreadyTakenException {
         try {
+            System.out.println(user);
             return userRepository.save(user);
-        } catch (Exception e){
-            throw new UserException("User already exist");
+        } catch (DataIntegrityViolationException e){
+            System.out.println(e.toString() + "Exception string");
+            if(e.getCause() instanceof ConstraintViolationException constraintViolationException){
+                final String constraintName = constraintViolationException.getConstraintName();
+                System.out.println(constraintViolationException.getSQLException().toString()+"get sql exception");
+                System.out.println("Constraint name" + constraintName);
+                if(constraintName != null && constraintName.contains("EMAIL NULLS FIRST")){
+                    throw new UserEmailAlreadyTakenException("User email already taken");
+                }
+                if(constraintName != null && constraintName.contains("USERNAME NULLS FIRST")){
+                    throw new UsernameAlreadyTakenException("Username already taken");
+                }
+            }
+            System.out.println(((ConstraintViolationException)e.getCause()).getConstraintName()+"Exception cause");
+            System.out.println(e.getMostSpecificCause().getMessage()+"Exception message");
+            throw new UserEmailAlreadyTakenException("User email already taken");
+        } catch (Exception e) {
+            System.out.println(e.toString());
+            throw e;
         }
     }
 

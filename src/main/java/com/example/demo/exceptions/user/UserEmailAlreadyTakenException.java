@@ -3,12 +3,12 @@ package com.example.demo.exceptions.user;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(value = HttpStatus.BAD_REQUEST, reason = "User already exists")
-public class UserException extends RuntimeException {
+@ResponseStatus(value = HttpStatus.BAD_REQUEST, reason = "User email already taken")
+public class UserEmailAlreadyTakenException extends RuntimeException {
     private String message;
 
-    public UserException(){}
-    public UserException(String message){
+    public UserEmailAlreadyTakenException(){}
+    public UserEmailAlreadyTakenException(String message){
         super(message);
         this.message=message;
     }
