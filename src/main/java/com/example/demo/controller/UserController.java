@@ -26,6 +26,14 @@ public class UserController {
         List<User> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
+
+    @GetMapping(path = "{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<User> getUser(@PathVariable Long userId){
+        System.out.println("User ID "+userId.toString());
+        User user = this.userService.getUserById(userId);
+        return ResponseEntity.ok(user);
+    };
+
     @ResponseBody
     @GetMapping(path = "create", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<User> createUser(@RequestBody CreateUserPayload userPayload) throws UserEmailAlreadyTakenException {
@@ -38,8 +46,8 @@ public class UserController {
                 userPayload.email(), userPayload.username(),
                 "image_id", userPayload.phone(),
                 userPayload.monthly_salary(), date, userPayload.account_balance() != null ? userPayload.account_balance() : Long.valueOf(0L), userPayload.password());;
-            userService.createUser(createdUser);
-            return ResponseEntity.ok(createdUser);
+            User newUser = userService.createUser(createdUser);
+            return ResponseEntity.ok(newUser);
         } catch (UserEmailAlreadyTakenException e){
             System.out.println(e.toString());
             throw e;

@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.exceptions.user.UserEmailAlreadyTakenException;
+import com.example.demo.exceptions.user.UserNotFoundException;
 import com.example.demo.exceptions.user.UsernameAlreadyTakenException;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -25,8 +27,12 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User getUserById(Long id) {
-        return userRepository.findById(id).orElse(null);
+    public User getUserById(Long id) throws UserNotFoundException {
+        Optional<User> queryUser = userRepository.findById(id);
+        if(queryUser.isEmpty()){
+            throw new UserNotFoundException("User not found");
+        }
+        return queryUser.get();
     }
 
     @Override

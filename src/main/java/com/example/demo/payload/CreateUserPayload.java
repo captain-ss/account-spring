@@ -26,7 +26,4 @@ public record CreateUserPayload(
     @NotEmpty(message = "Password is required")
     String password
 ) {
-    public CreateUserPayload{
-
-    }
 }
