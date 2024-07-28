@@ -1,11 +1,16 @@
 package com.example.demo.controller;
 
+import com.example.demo.configuration.UserAuthenticationProvider;
 import com.example.demo.exceptions.user.UserEmailAlreadyTakenException;
+import com.example.demo.exceptions.user.UserNotFoundException;
 import com.example.demo.model.User;
 import com.example.demo.payload.CreateUserPayload;
+import com.example.demo.payload.LoginUserPayload;
 import com.example.demo.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,10 +24,18 @@ import java.util.List;
 public class UserController {
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserAuthenticationProvider userAuthenticationProvider;
 
     // Get all users
     @GetMapping(path = {"/", ""})
     public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = userService.getAllUsers();
+        return ResponseEntity.ok(users);
+    }
+
+    @PostMapping(path = {"/", ""})
+    public ResponseEntity<List<User>> getAllUsersPost() {
         List<User> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
@@ -35,8 +48,8 @@ public class UserController {
     };
 
     @ResponseBody
-    @GetMapping(path = "create", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<User> createUser(@RequestBody CreateUserPayload userPayload) throws UserEmailAlreadyTakenException {
+    @PostMapping(path = "create", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<User> createUser(@Valid @RequestBody CreateUserPayload userPayload) throws UserEmailAlreadyTakenException {
         try{
             Calendar calendar = Calendar.getInstance();
             calendar.set(2000, Calendar.NOVEMBER, 10);
@@ -56,7 +69,20 @@ public class UserController {
             throw e;
         }
     }
-
+~
+    @PostMapping(path = "login", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<User> loginUser(@Valid @RequestBody LoginUserPayload loginUserPayload) throws UserNotFoundException {
+        try {
+            User user = userService.getUserByUsername(loginUserPayload.username());
+            String jwtToken = userAuthenticationProvider.createJwtToken(user.getUsername());
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.set(HttpHeaders.AUTHORIZATION, jwtToken);
+            return new ResponseEntity<User>(user, httpHeaders, HttpStatus.ACCEPTED);
+        } catch (UserNotFoundException e){
+            System.out.println(e.toString());
+            throw e;
+        }
+    }
     @GetMapping(path = "hi", consumes = MediaType.APPLICATION_JSON_VALUE)
     public String hello(@Valid @RequestBody CreateUserPayload user){
         System.out.println(user.toString());

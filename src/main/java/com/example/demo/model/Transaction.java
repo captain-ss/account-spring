@@ -22,7 +22,7 @@ public class Transaction {
     @Column(nullable = false, unique = false)
     private Date transaction_date;
 
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     private TransactionType transactionType;
 
     public Transaction() {

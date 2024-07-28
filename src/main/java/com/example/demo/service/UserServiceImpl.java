@@ -36,6 +36,15 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    public User getUserByUsername(String username) {
+        User user = userRepository.findByUsername(username);
+        if(user == null){
+            throw new UserNotFoundException("User not found");
+        }
+        return user;
+    }
+
+    @Override
     public User createUser(User user) throws UserEmailAlreadyTakenException {
         try {
             System.out.println(user);
