@@ -19,11 +19,13 @@ public class UserAuthenticationEntryPoint implements AuthenticationEntryPoint {
     public UserAuthenticationEntryPoint(){
         OBJECT_MAPPER = new ObjectMapper();
     }
+
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+        System.out.println("auth message "+authException.getMessage());
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-        System.out.println(response.toString());
+//        System.out.println("response body "+authException.getClass().getsi);
         OBJECT_MAPPER.writeValue(response.getOutputStream(), new UnauthorizedErrorDto("You shall not pass"));
     }
 }

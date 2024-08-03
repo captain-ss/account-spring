@@ -29,22 +29,21 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.csrf(AbstractHttpConfigurer::disable);
-        httpSecurity.cors(Customizer.withDefaults());
-        httpSecurity.sessionManagement(
+        httpSecurity.csrf(AbstractHttpConfigurer::disable)
+        .cors(Customizer.withDefaults())
+                .sessionManagement(
                 httpSecuritySessionManagementConfigurer ->
                         httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS
-                        ));
-        httpSecurity.authorizeHttpRequests(
+                        ))
+        .authorizeHttpRequests(
                 authorizationManagerRequestMatcherRegistry -> authorizationManagerRequestMatcherRegistry
-                        .requestMatchers(HttpMethod.POST,"/users/**").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/users/**").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/users/login").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/users/create").permitAll()
                         .anyRequest().authenticated()
-        );
-        httpSecurity.addFilterBefore(new JwtAuthFilter(userAuthenticationProvider), BasicAuthenticationFilter.class);
-        httpSecurity.exceptionHandling(httpSecurityExceptionHandlingConfigurer
-                                        -> httpSecurityExceptionHandlingConfigurer.authenticationEntryPoint
-                                        (this.userAuthenticationEntryPoint));
+        )
+        .addFilterBefore(new JwtAuthFilter(userAuthenticationProvider), BasicAuthenticationFilter.class)
+        .exceptionHandling(httpSecurityExceptionHandlingConfigurer
+                                        -> httpSecurityExceptionHandlingConfigurer.authenticationEntryPoint(new UserAuthenticationEntryPoint()));
         return httpSecurity.build();
     }
 }

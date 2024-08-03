@@ -38,6 +38,8 @@ public class UserServiceImpl implements UserService{
     @Override
     public User getUserByUsername(String username) {
         User user = userRepository.findByUsername(username);
+        System.out.println(username+" username");
+        System.out.println(user.toString()+" usersdf");
         if(user == null){
             throw new UserNotFoundException("User not found");
         }
@@ -45,9 +47,17 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User createUser(User user) throws UserEmailAlreadyTakenException {
+    public User createUser(User user) throws UserEmailAlreadyTakenException, UsernameAlreadyTakenException {
         try {
             System.out.println(user);
+            final User userByEmail=this.userRepository.findByEmail(user.getEmail());
+            if(userByEmail != null){
+                throw new UserEmailAlreadyTakenException("User email is already taken");
+            }
+            final User userByUsername=this.userRepository.findByUsername(user.getUsername());
+            if(userByUsername!=null){
+                throw new UsernameAlreadyTakenException("Username is already taken");
+            }
             return userRepository.save(user);
         } catch (DataIntegrityViolationException e){
             System.out.println(e.toString() + "Exception string");
@@ -65,7 +75,10 @@ public class UserServiceImpl implements UserService{
             System.out.println(((ConstraintViolationException)e.getCause()).getConstraintName()+"Exception cause");
             System.out.println(e.getMostSpecificCause().getMessage()+"Exception message");
             throw new UserEmailAlreadyTakenException("User email already taken");
-        } catch (Exception e) {
+        } catch (UsernameAlreadyTakenException | UserEmailAlreadyTakenException e){
+            throw e;
+        }
+        catch (Exception e) {
             System.out.println(e.toString());
             throw e;
         }

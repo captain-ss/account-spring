@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.configuration.UserAuthenticationProvider;
 import com.example.demo.exceptions.user.UserEmailAlreadyTakenException;
 import com.example.demo.exceptions.user.UserNotFoundException;
+import com.example.demo.exceptions.user.UsernameAlreadyTakenException;
 import com.example.demo.model.User;
 import com.example.demo.payload.CreateUserPayload;
 import com.example.demo.payload.LoginUserPayload;
@@ -13,6 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Calendar;
@@ -60,8 +62,11 @@ public class UserController {
                 "image_id", userPayload.phone(),
                 userPayload.monthly_salary(), date, userPayload.account_balance() != null ? userPayload.account_balance() : Long.valueOf(0L), userPayload.password());;
             User newUser = userService.createUser(createdUser);
-            return ResponseEntity.ok(newUser);
-        } catch (UserEmailAlreadyTakenException e){
+            String jwtToken = userAuthenticationProvider.createJwtToken(newUser.getUsername(), newUser.getHashed_password());
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.set(HttpHeaders.AUTHORIZATION, jwtToken);
+            return new ResponseEntity<User>(newUser, httpHeaders, HttpStatus.CREATED);
+        } catch (UserEmailAlreadyTakenException | UsernameAlreadyTakenException e){
             System.out.println(e.toString());
             throw e;
         } catch (Exception e){
@@ -69,17 +74,17 @@ public class UserController {
             throw e;
         }
     }
-~
+
     @PostMapping(path = "login", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<User> loginUser(@Valid @RequestBody LoginUserPayload loginUserPayload) throws UserNotFoundException {
         try {
             User user = userService.getUserByUsername(loginUserPayload.username());
-            String jwtToken = userAuthenticationProvider.createJwtToken(user.getUsername());
+            String jwtToken = userAuthenticationProvider.createJwtToken(user.getUsername(), user.getHashed_password());
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.set(HttpHeaders.AUTHORIZATION, jwtToken);
             return new ResponseEntity<User>(user, httpHeaders, HttpStatus.ACCEPTED);
         } catch (UserNotFoundException e){
-            System.out.println(e.toString());
+            System.out.println("UserNotFoundException "+e.getClass().getName());
             throw e;
         }
     }
