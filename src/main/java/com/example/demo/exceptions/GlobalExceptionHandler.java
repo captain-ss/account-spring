@@ -1,6 +1,7 @@
 package com.example.demo.exceptions;
 
 import com.example.demo.Dto.ExceptionResponseDto.ExceptionResponseDto;
+import com.example.demo.exceptions.user.CredentialMismatchException;
 import com.example.demo.exceptions.user.UserEmailAlreadyTakenException;
 import com.example.demo.exceptions.user.UsernameAlreadyTakenException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,5 +39,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = UserEmailAlreadyTakenException.class)
     public ResponseEntity<ExceptionResponseDto> userEmailAlreadyTakenExceptionHandler(UserEmailAlreadyTakenException e){
         return new ResponseEntity<ExceptionResponseDto>(new ExceptionResponseDto(e.getMessage()), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(value = CredentialMismatchException.class)
+    public ResponseEntity<ExceptionResponseDto> CredentialMismatchExceptionHandler(CredentialMismatchException e){
+        return new ResponseEntity<ExceptionResponseDto>(new ExceptionResponseDto(e.getMessage()), HttpStatus.UNAUTHORIZED);
     }
 }

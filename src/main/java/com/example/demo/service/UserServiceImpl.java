@@ -38,11 +38,11 @@ public class UserServiceImpl implements UserService{
     @Override
     public User getUserByUsername(String username) {
         User user = userRepository.findByUsername(username);
-        System.out.println(username+" username");
-        System.out.println(user.toString()+" usersdf");
         if(user == null){
             throw new UserNotFoundException("User not found");
         }
+        System.out.println(username+" username");
+        System.out.println(user.toString()+" usersdf");
         return user;
     }
 

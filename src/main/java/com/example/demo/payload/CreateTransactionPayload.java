@@ -8,8 +8,6 @@ import jakarta.validation.constraints.Pattern;
 import java.util.Date;
 
 public record CreateTransactionPayload(
-    @NotNull(message = "User ID is required")
-    Long userId,
     @NotNull(message = "Transaction amount is required")
     Integer amount,
     @NotNull(message = "Transaction date is required")

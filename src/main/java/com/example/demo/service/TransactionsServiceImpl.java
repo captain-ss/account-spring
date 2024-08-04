@@ -29,6 +29,11 @@ public class TransactionsServiceImpl implements TransactionsService{
     }
 
     @Override
+    public List<Transaction> getAllTransactionsByUserId(Long userId) {
+        return this.transactionRepository.findAllByUser_id(userId);
+    }
+
+    @Override
     public Transaction createTransaction(Transaction transaction) {
         return this.transactionRepository.save(transaction);
     }

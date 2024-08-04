@@ -1,11 +1,13 @@
 package com.example.demo.configuration;
 
+import com.example.demo.exceptions.user.UnauthorizedRequestException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -24,6 +26,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (authorizationHeader != null){
             String[] elements = authorizationHeader.split(" ");
             try {
+                if(elements.length != 2){
+                    throw new UnauthorizedRequestException("Unauthorized request");
+                }
                 SecurityContextHolder.getContext().setAuthentication(
                         userAuthenticationProvider.verifyToken(elements[1])
                 );

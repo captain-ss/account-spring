@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.configuration.UserAuthenticationProvider;
+import com.example.demo.exceptions.user.CredentialMismatchException;
 import com.example.demo.exceptions.user.UserEmailAlreadyTakenException;
 import com.example.demo.exceptions.user.UserNotFoundException;
 import com.example.demo.exceptions.user.UsernameAlreadyTakenException;
@@ -14,6 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,8 +47,20 @@ public class UserController {
     @GetMapping(path = "{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<User> getUser(@PathVariable Long userId){
         System.out.println("User ID "+userId.toString());
-        User user = this.userService.getUserById(userId);
-        return ResponseEntity.ok(user);
+        String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        System.out.println("Principal "+username);
+        try{
+            User user = this.userService.getUserById(userId);
+            if(!user.getUsername().equals(username)){
+                throw new UserNotFoundException("User not found");
+            }
+            return ResponseEntity.ok(user);
+        } catch (UserNotFoundException e){
+            System.out.println("User not found "+ userId);
+            throw e;
+        } catch (Exception e){
+            throw e;
+        }
     };
 
     @ResponseBody
@@ -79,6 +93,9 @@ public class UserController {
     public ResponseEntity<User> loginUser(@Valid @RequestBody LoginUserPayload loginUserPayload) throws UserNotFoundException {
         try {
             User user = userService.getUserByUsername(loginUserPayload.username());
+            if(!user.getHashed_password().equals(loginUserPayload.password())){
+                throw new CredentialMismatchException("Username or password mismatch");
+            }
             String jwtToken = userAuthenticationProvider.createJwtToken(user.getUsername(), user.getHashed_password());
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.set(HttpHeaders.AUTHORIZATION, jwtToken);
@@ -86,8 +103,11 @@ public class UserController {
         } catch (UserNotFoundException e){
             System.out.println("UserNotFoundException "+e.getClass().getName());
             throw e;
+        } catch (CredentialMismatchException e){
+            throw e;
         }
     }
+
     @GetMapping(path = "hi", consumes = MediaType.APPLICATION_JSON_VALUE)
     public String hello(@Valid @RequestBody CreateUserPayload user){
         System.out.println(user.toString());
