@@ -9,6 +9,7 @@ import com.example.demo.model.User;
 import com.example.demo.payload.CreateUserPayload;
 import com.example.demo.payload.LoginUserPayload;
 import com.example.demo.service.UserService;
+import com.example.demo.utility.Patcher;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -89,6 +90,23 @@ public class UserController {
         }
     }
 
+    @ResponseBody
+    @PatchMapping(path = "update", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<User> patchUser(@RequestBody User patchUser) throws UserNotFoundException{
+        try {
+            final String patchUserUsername = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+            User existingUser = this.userService.getUserByUsername(patchUserUsername);
+            System.out.println(existingUser);
+            Patcher.userPatcher(existingUser, patchUser);
+            this.userService.saveUser(existingUser);
+            return new ResponseEntity<User>(existingUser, HttpStatus.ACCEPTED);
+        } catch (UserNotFoundException e){
+            throw e;
+        } catch (IllegalAccessException e) {
+            System.out.println(e.toString());
+            throw new RuntimeException(e);
+        }
+    }
     @PostMapping(path = "login", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<User> loginUser(@Valid @RequestBody LoginUserPayload loginUserPayload) throws UserNotFoundException {
         try {

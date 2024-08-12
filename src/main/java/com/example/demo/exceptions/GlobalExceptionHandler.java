@@ -3,6 +3,7 @@ package com.example.demo.exceptions;
 import com.example.demo.Dto.ExceptionResponseDto.ExceptionResponseDto;
 import com.example.demo.exceptions.user.CredentialMismatchException;
 import com.example.demo.exceptions.user.UserEmailAlreadyTakenException;
+import com.example.demo.exceptions.user.UserNotFoundException;
 import com.example.demo.exceptions.user.UsernameAlreadyTakenException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
@@ -43,6 +44,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = CredentialMismatchException.class)
     public ResponseEntity<ExceptionResponseDto> CredentialMismatchExceptionHandler(CredentialMismatchException e){
+        return new ResponseEntity<ExceptionResponseDto>(new ExceptionResponseDto(e.getMessage()), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(value = UserNotFoundException.class)
+    public ResponseEntity<ExceptionResponseDto> UserNotFoundExceptionHandler(UserNotFoundException e){
         return new ResponseEntity<ExceptionResponseDto>(new ExceptionResponseDto(e.getMessage()), HttpStatus.UNAUTHORIZED);
     }
 }

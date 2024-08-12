@@ -12,6 +12,7 @@ public interface UserService {
     User getUserById(Long id) throws UserNotFoundException;
     User getUserByUsername(String username);
     User createUser(User user) throws UserEmailAlreadyTakenException, UsernameAlreadyTakenException;
+    User saveUser(User user);
     User updateUser(Long id, User user);
     void deleteUser(Long id);
 }
