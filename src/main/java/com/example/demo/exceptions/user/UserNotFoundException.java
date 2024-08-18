@@ -11,6 +11,7 @@ public class UserNotFoundException extends RuntimeException{
 
     public UserNotFoundException(String message) {
         super(message);
+        System.out.println(message+ " message from exception");
         this.message = message;
     }
 

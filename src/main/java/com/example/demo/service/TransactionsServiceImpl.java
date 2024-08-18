@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 @Service
 public class TransactionsServiceImpl implements TransactionsService{
@@ -30,7 +29,12 @@ public class TransactionsServiceImpl implements TransactionsService{
     }
 
     @Override
+    public List<Transaction> getAllTransactionsByUserId(Long userId) {
+        return this.transactionRepository.findAllByUser_id(userId);
+    }
+
+    @Override
     public Transaction createTransaction(Transaction transaction) {
-        return null;
+        return this.transactionRepository.save(transaction);
     }
 }
