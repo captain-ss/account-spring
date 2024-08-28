@@ -9,10 +9,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 
 import java.util.Calendar;
 import java.util.Date;
-
 @SpringBootApplication
 public class AccountApplication {
     public static void main(String[] args) {
@@ -25,10 +25,10 @@ public class AccountApplication {
             Calendar calendar = Calendar.getInstance();
             calendar.set(2000, Calendar.NOVEMBER, 10);
             final Date date = calendar.getTime();
-            User user = new User("name", "email.com", "username", "img", "911", 100, date, Long.valueOf("100"), "password");
+            User user = new User("name", "email.com", "username", "img", "911", Integer.valueOf(100), date, Long.valueOf("100"), "password");
             userRepository.save(user);
 
-            final Transaction transaction = new Transaction(user, 1000, date, TransactionType.EXPENSE);
+            final Transaction transaction = new Transaction(user, Integer.valueOf(1000), date, TransactionType.EXPENSE);
             transactionRepository.save(transaction);
         };
     }
