@@ -13,5 +13,7 @@ COPY src ./src
 # Run Maven to build the project and resolve dependencies
 RUN mvn clean package
 
+EXPOSE 8080
+
 # Set the default command to run your application
 CMD ["java", "-jar", "./target/account_balance-0.0.1-SNAPSHOT.jar"]
